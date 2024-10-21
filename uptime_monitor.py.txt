@@ -1,0 +1,49 @@
+import requests
+import logging
+import time
+from datetime import datetime
+
+
+logging.basicConfig(
+    filename="application_uptime.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+
+APP_URL = "https://google.com"  
+EXPECTED_STATUS_CODE = 200  
+def log_and_print(message, level="info"):
+    """Log messages to both the console and log file."""
+    print(message)
+    if level == "info":
+        logging.info(message)
+    elif level == "warning":
+        logging.warning(message)
+    elif level == "error":
+        logging.error(message)
+
+def check_application_status():
+    """Check the application's status by sending an HTTP request."""
+    try:
+        response = requests.get(APP_URL, timeout=10)
+        status_code = response.status_code
+
+        if status_code == EXPECTED_STATUS_CODE:
+            log_and_print(f"UP: Application is functioning correctly. Status Code: {status_code}")
+        else:
+            log_and_print(f"WARNING: Application is reachable but returned Status Code: {status_code}", level="warning")
+    
+    except requests.exceptions.RequestException as e:
+        log_and_print(f"DOWN: Application is unavailable. Error: {e}", level="error")
+
+def monitor_application(interval=60):
+    """Continuously monitor the application's status at regular intervals."""
+    print("Starting application uptime monitoring...")
+    while True:
+        check_application_status()
+        print(f"Next check in {interval} seconds...\n")
+        time.sleep(interval)
+
+if __name__ == "__main__":
+    monitor_application(interval=30)  
